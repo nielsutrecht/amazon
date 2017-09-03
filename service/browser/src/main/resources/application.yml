@@ -1,0 +1,5 @@
+amazon:
+  region: eu-west-1
+  buckets:
+  - nibado-backup
+
