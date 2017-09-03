@@ -22,10 +22,8 @@ public class S3 {
         return client.listObjects(bucket, prefix);
     }
 
-    public String get(final String bucket, final String key) {
-        S3Object object = client.getObject(bucket, key);
-
-        return object.getObjectMetadata().getContentType();
+    public S3Object get(final String bucket, final String key) {
+        return client.getObject(bucket, key);
     }
 
     public void delete(final String bucket, final String key) {

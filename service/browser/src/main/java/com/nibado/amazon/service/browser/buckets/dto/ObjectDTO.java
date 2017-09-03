@@ -1,4 +1,4 @@
-package com.nibado.amazon.service.browser.objects.dto;
+package com.nibado.amazon.service.browser.buckets.dto;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import lombok.Data;

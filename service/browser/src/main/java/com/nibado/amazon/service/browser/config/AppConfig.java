@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.nibado.amazon.lib.auth.PropertySecrets;
 import com.nibado.amazon.lib.s3wrapper.S3;
+import com.nibado.amazon.service.browser.servlet.ObjectServlet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.util.UrlPathHelper;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -37,6 +37,7 @@ public class AppConfig extends WebMvcConfigurerAdapter {
 
         return new S3(builder.build());
     }
+
     @Bean
     public Jackson2ObjectMapperBuilder jacksonBuilder() {
         Jackson2ObjectMapperBuilder b = new Jackson2ObjectMapperBuilder();
@@ -46,6 +47,11 @@ public class AppConfig extends WebMvcConfigurerAdapter {
         b.serializerByType(ZonedDateTime.class, zonedDateTimeSerializer());
         b.serializerByType(LocalDate.class, localDateSerializer());
         return b;
+    }
+
+    @Bean
+    public ServletRegistrationBean servletRegistrationBean() {
+        return new ServletRegistrationBean(new ObjectServlet(), "/object/*");
     }
 
     public static JsonSerializer<Duration> durationSerializer() {
@@ -82,12 +88,5 @@ public class AppConfig extends WebMvcConfigurerAdapter {
                 gen.writeString(value.format(DateTimeFormatter.ISO_LOCAL_DATE));
             }
         };
-    }
-
-    @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        UrlPathHelper urlPathHelper = new UrlPathHelper();
-        urlPathHelper.setUrlDecode(false);
-        configurer.setUrlPathHelper(urlPathHelper);
     }
 }
