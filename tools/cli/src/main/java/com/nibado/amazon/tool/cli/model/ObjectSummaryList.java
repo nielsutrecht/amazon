@@ -11,7 +11,27 @@ public class ObjectSummaryList implements KeyList {
     private final List<S3ObjectSummary> objects;
 
     @Override
-    public List<String> keys() {
-        return objects.stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
+    public List<Key> keys() {
+        return objects.stream().map(S3ObjectSummaryKey::new).collect(Collectors.toList());
+    }
+
+    private static class S3ObjectSummaryKey implements Key {
+        private final String key;
+        private final String bucket;
+
+        public S3ObjectSummaryKey(final S3ObjectSummary summary) {
+            this.key = summary.getKey();
+            this.bucket = summary.getBucketName();
+        }
+
+        @Override
+        public String key() {
+            return key;
+        }
+
+        @Override
+        public String bucket() {
+            return bucket;
+        }
     }
 }

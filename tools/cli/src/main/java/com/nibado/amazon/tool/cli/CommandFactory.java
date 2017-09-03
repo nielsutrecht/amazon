@@ -27,7 +27,7 @@ public class CommandFactory {
     }
 
     public Command parse(final String line) {
-        System.out.println("parsing " + line);
+        //System.out.println("parsing " + line);
         List<Command> commands = Stream
                 .of(line.split("\\|"))
                 .map(String::trim)
@@ -38,7 +38,7 @@ public class CommandFactory {
     }
 
     private Command mapToCommand(final String cmd) {
-        System.out.println("mapping " + cmd);
+        //System.out.println("mapping " + cmd);
         Matcher m = LIST_PATTERN.matcher(cmd);
         if(m.matches()) {
             return new ListCommand(s3, m.group(1), null);

@@ -3,6 +3,7 @@ package com.nibado.amazon.tool.cli.command.s3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.nibado.amazon.lib.s3wrapper.S3;
 import com.nibado.amazon.tool.cli.command.Result;
+import com.nibado.amazon.tool.cli.model.Key;
 import com.nibado.amazon.tool.cli.model.KeyList;
 
 import java.util.Collections;
@@ -20,7 +21,7 @@ public class DeleteCommand extends S3Command {
 
     @Override
     public Result<KeyList> run(final Result<?> previous) {
-        List<String> keys = key != null ? Collections.singletonList(key) : getKeyList(previous);
+        List<Key> keys = key != null ? Collections.singletonList(new KeyAndBucket(key, bucket)) : getKeyList(previous);
 
         if (keys.isEmpty()) {
             System.err.println("Nothing to delete");
@@ -34,10 +35,10 @@ public class DeleteCommand extends S3Command {
             return Result.fail();
         }
 
-        return new Result<>(() -> keys);
+        return new Result<>();
     }
 
-    private List<String> getKeyList(final Result<?> previous) {
+    private List<Key> getKeyList(final Result<?> previous) {
         if (previous.is(KeyList.class)) {
             return previous
                     .as(KeyList.class)
@@ -47,17 +48,32 @@ public class DeleteCommand extends S3Command {
         return Collections.emptyList();
     }
 
-    private void deleteKeys(final List<String> keys) {
-        for (String key : keys) {
-            s3.delete(bucket, key);
-            System.out.println("Deleted " + key);
+    private void deleteKeys(final List<Key> keys) {
+        int count = 0;
+        for (Key key : keys) {
+            s3.delete(key.bucket(), key.key());
+            System.out.printf("Deleted %s/%s\n", key.bucket(), key.key());
+            count++;
         }
     }
 
-    private static class DeletedKeyList implements KeyList {
+    private static class KeyAndBucket implements Key {
+        private final String key;
+        private final String bucket;
+
+        public KeyAndBucket(String key, String bucket) {
+            this.key = key;
+            this.bucket = bucket;
+        }
+
         @Override
-        public List<String> keys() {
-            return null;
+        public String key() {
+            return key;
+        }
+
+        @Override
+        public String bucket() {
+            return bucket;
         }
     }
 }
