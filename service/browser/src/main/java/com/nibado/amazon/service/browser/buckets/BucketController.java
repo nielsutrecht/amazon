@@ -8,15 +8,12 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/bucket")
 public class BucketController {
-    private static final BucketListResponse ALL_BUCKETS = new BucketListResponse(Collections.singletonList(BucketDTO.of("nibado-backup")));
-
     private final S3 s3;
 
     @Autowired
@@ -26,7 +23,8 @@ public class BucketController {
 
     @GetMapping
     public BucketListResponse list() {
-        return ALL_BUCKETS;
+        List<BucketDTO> buckets = s3.buckets().stream().map(BucketDTO::from).collect(Collectors.toList());
+        return new BucketListResponse(buckets);
     }
 
     @GetMapping("/{bucket}")

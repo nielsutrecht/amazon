@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.nibado.amazon.lib.auth.PropertySecrets;
 import com.nibado.amazon.lib.s3wrapper.S3;
+import com.nibado.amazon.service.browser.rest.Links;
 import com.nibado.amazon.service.browser.servlet.ObjectServlet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,8 @@ public class AppConfig extends WebMvcConfigurerAdapter {
         b.serializerByType(ZonedDateTime.class, zonedDateTimeSerializer());
         b.serializerByType(ZonedDateTime.class, zonedDateTimeSerializer());
         b.serializerByType(LocalDate.class, localDateSerializer());
+        b.serializerByType(LocalDateTime.class, localDateTimeSerializer());
+        b.serializerByType(Links.class, Links.serializer());
         return b;
     }
 

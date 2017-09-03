@@ -1,9 +1,12 @@
 package com.nibado.amazon.lib.s3wrapper;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Slf4j
 
@@ -28,5 +31,9 @@ public class S3 {
 
     public void delete(final String bucket, final String key) {
         client.deleteObject(bucket, key);
+    }
+
+    public List<Bucket> buckets() {
+        return client.listBuckets();
     }
 }
