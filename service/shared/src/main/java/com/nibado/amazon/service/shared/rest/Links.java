@@ -1,4 +1,4 @@
-package com.nibado.amazon.service.browser.rest;
+package com.nibado.amazon.service.shared.rest;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

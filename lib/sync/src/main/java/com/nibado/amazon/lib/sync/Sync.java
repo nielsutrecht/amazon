@@ -28,7 +28,7 @@ public class Sync {
         this.bucket = bucket;
     }
 
-    List<File> list() {
+    public List<File> list() {
         List<File> files = new ArrayList<>();
 
         listFiles(directory, files);
@@ -36,11 +36,11 @@ public class Sync {
         return files;
     }
 
-    String toKey(final File file) {
+    public String toKey(final File file) {
         return String.format("/sync/%s/%s", key, directory.toPath().relativize(file.toPath()));
     }
 
-    List<S3ObjectSummary> s3List() {
+    public List<S3ObjectSummary> s3List() {
         log.info("Listing for bucket {} and prefix {}", bucket, "/sync/" + key);
         return client
                 .listObjects(bucket, "/sync/" + key)
@@ -68,7 +68,7 @@ public class Sync {
             log.info("Etag for file {} is {}", file, object.getObjectMetadata().getETag());
             return Optional.of(object.getObjectMetadata().getETag());
         } catch (AmazonS3Exception e) {
-            if(e.getStatusCode() == 404) {
+            if (e.getStatusCode() == 404) {
                 return Optional.empty();
             } else {
                 throw e;
@@ -82,7 +82,7 @@ public class Sync {
         Files.copy(object.getObjectContent(), toLocation.toPath());
     }
 
-    List<File> syncList() {
+    public List<File> syncList() {
         List<File> files = list();
 
         Map<String, S3ObjectSummary> objectMap = s3List()
@@ -100,7 +100,7 @@ public class Sync {
                 .filter(f -> !etagMatches(f, objectMap))
                 .collect(Collectors.toList());
 
-        if(!doExistButDifferentEtag.isEmpty()) {
+        if (!doExistButDifferentEtag.isEmpty()) {
             log.warn("These files have been modified: {}", doExistButDifferentEtag);
         }
 
@@ -110,7 +110,7 @@ public class Sync {
     public void syncAll() {
         List<File> syncList = syncList();
 
-        if(syncList.isEmpty()) {
+        if (syncList.isEmpty()) {
             log.info("No files to sync");
         } else {
             log.info("{} files to sync", syncList.size());
@@ -121,28 +121,33 @@ public class Sync {
 
     public void sync(final List<File> files) {
         ExecutorService pool = Executors.newFixedThreadPool(4);
+        long start = System.currentTimeMillis();
 
-        List<File> failed = new ArrayList<>();
+        List<File> failed = Collections.synchronizedList(new ArrayList<>());
 
-        for(File f : files) {
-             pool.submit(() -> {
-                 try {
-                     putFile(f);
-                 } catch (IOException e) {
-                     failed.add(f);
-                 }
-             });
-        }
-
-        try {
-            pool.awaitTermination(16, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        for (File f : files) {
+            pool.submit(() -> {
+                try {
+                    putFile(f);
+                } catch (IOException e) {
+                    failed.add(f);
+                }
+            });
         }
 
         pool.shutdown();
 
-        if(!failed.isEmpty()) {
+        log.info("{} files submitted", files.size());
+
+        try {
+            pool.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        log.info("Sync finished after {} seconds", (System.currentTimeMillis() - start) / 1000);
+
+        if (!failed.isEmpty()) {
             log.warn("Failed to upload {} files: {}", failed.size(), failed);
         }
     }
@@ -178,12 +183,12 @@ public class Sync {
     }
 
     private void listFiles(final File directory, final List<File> fileList) {
-        if(!directory.isDirectory()) {
+        if (!directory.isDirectory()) {
             throw new IllegalArgumentException(directory + " is not a directory");
         }
 
-        for(File f : directory.listFiles()) {
-            if(f.isDirectory()) {
+        for (File f : directory.listFiles()) {
+            if (f.isDirectory()) {
                 listFiles(f, fileList);
             } else {
                 fileList.add(f);

@@ -13,6 +13,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>browser</module>
+        <module>sync</module>
+        <module>shared</module>
     </modules>
 
     <dependencies>

@@ -1,4 +1,4 @@
-package com.nibado.amazon.service.browser.buckets.dto;
+package com.nibado.amazon.service.sync.controller.dto;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.fasterxml.jackson.annotation.JsonProperty;

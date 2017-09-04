@@ -1,0 +1,10 @@
+sync:
+  region: eu-west-1
+  entries:
+  - directory:  ~/tmp/images
+    bucket:     nibado-backup
+    key:        images
+  - directory:  ~/tmp/documents
+    bucket:     nibado-backup
+    key:        docs
+
